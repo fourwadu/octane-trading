@@ -14,11 +14,13 @@ class RLGarageTrade {
 
         // Actual trade items
         // TODO: Assign prices based on credits
-        this.hasItems = $(tradeObj).find('.rlg-trade__itemshas').children().map((_, e) => new RLGarageItem($, e))
-        this.wantItems = $(tradeObj).find('.rlg-trade__itemswants').children().map((_, e) => new RLGarageItem($, e))
+        this.hasItems = [...$(tradeObj).find('.rlg-trade__itemshas').children().map((_, e) => new RLGarageItem($, e))]
+        this.wantItems = [...$(tradeObj).find('.rlg-trade__itemswants').children().map((_, e) => new RLGarageItem($, e))]
 
         // Assign a price to the items
-        this.pricedTrade = priceItems(this.hasItems, this.wantItems)
+        this.pricedTrade = priceItems(this.hasItems, this.wantItems);
+        this.buyTrade = this.pricedTrade === 1;
+        this.sellTrade = this.sellTrade === 2;
 
         // Footer note
         this.note = $(tradeObj).find('.rlg-trade__note').text();
@@ -43,30 +45,30 @@ class RLGarageItem {
     }
 
     setItemPrice(price) {
-        this.itemPrice = price;
+        this.price = price;
     }
 }
 
-priceItems = (hasItems, wantItems) => {
-    let hasCredits = hasItems.length === wantItems.filter((_, item) => item.name === "Credits").length;
-    let wantCredits = wantItems.length === hasItems.filter((_, item) => item.name === "Credits").length;
+const priceItems = (hasItems, wantItems) => {
+    let hasCredits = hasItems.length === wantItems.filter(item => item.name === "Credits").length;
+    let wantCredits = wantItems.length === hasItems.filter(item => item.name === "Credits").length;
 
     // If there are credits on both sides, just return, something weird with that trade
-    if (hasCredits && wantCredits) return false;
+    if (hasCredits && wantCredits) return null;
 
     // Go through either hasItems or wantItems and assign the price the quantity of credits on the other side of the trade
     if (hasCredits) {
         for (let i = 0; i < hasItems.length; i++) {
             hasItems[i].setItemPrice(wantItems[i].quantity);
         }
-        return true
+        return 1;
     } else if (wantCredits) {
         for (let i = 0; i < wantItems.length; i++) {
             wantItems[i].setItemPrice(hasItems[i].quantity);
         }
-        return true;
+        return 2;
     } else {
-        return false;
+        return null;
     }
 }
 
