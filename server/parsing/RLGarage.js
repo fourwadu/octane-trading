@@ -5,6 +5,9 @@ import querystring from 'querystring';
 import RLGarageTrade from './RLGarageTrade.js';
 
 const RL_GARAGE_URL = 'https://rocket-league.com/trading';
+const BLACKLIST_TERMS = [
+    ' offer', 'blueprint'
+]
 
 // "Enums"
 export const PLATFORMS = {
@@ -28,7 +31,8 @@ export const getPage = async ({ platform=PLATFORMS.PC, search_type=SEARCH_TYPE.A
         'filterMinCredits': minCredits,
         'filterMaxCredits': maxCredits,
         'filterPlatform[]': platform,
-        'filterSearchType': search_type
+        'filterSearchType': search_type,
+        'itemType': 1
     });
     const tradeUrl = `${RL_GARAGE_URL}?${queryData}`;
 
@@ -46,4 +50,38 @@ export const scrapeTrades = (pageHTML) => {
     let trades = [...$('.rlg-trade').map((_, e) => new RLGarageTrade($, e))]
 
     return trades;
+}
+
+// Takes in an item and generates an inverse trade
+export const inverseTrade = async ({ platform=PLATFORMS.PC, item, buyTrade }) => {
+    let pageData = {
+        platform,
+        item: item.id,
+        itemPaint: item.paint,
+        itemCert: item.cert,
+        search_type: buyTrade ? SEARCH_TYPE.Have : SEARCH_TYPE.Want
+    }
+
+    let pageHtml = await getPage(pageData);
+    return pageHtml;
+}
+
+// Takes an inverted trade object and compares to a trade item and determines profitability of a trade
+export const searchTrades = (item, trades, buyTrade) => {
+    trades.forEach(trade => {
+        // Determines which set of items to use, then makes sure its comparing to a similar item
+        let items = buyTrade ? trade.wantItems : trade.hasItems;
+        let potItem = items.filter(potItem => potItem.id === item.id && potItem.paint === item.paint && potItem.cert === item.cert)[0];
+
+        // Successful trade conditions
+        if (buyTrade) {
+            if (potItem.price > item.price) {
+                // TODO: DO SOMETHING HERE
+            }
+        } else {
+            if (potItem.price < item.price) {
+                // TODO: DO SOMETHING HERE
+            }
+        }
+    });
 }

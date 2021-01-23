@@ -14,8 +14,8 @@ class RLGarageTrade {
 
         // Actual trade items
         // TODO: Assign prices based on credits
-        this.hasItems = [...$(tradeObj).find('.rlg-trade__itemshas').children().map((_, e) => new RLGarageItem($, e))]
-        this.wantItems = [...$(tradeObj).find('.rlg-trade__itemswants').children().map((_, e) => new RLGarageItem($, e))]
+        this.hasItems = [...$(tradeObj).find('.rlg-trade__itemshas').children().map((_, e) => new RLGarageItem($, e, this.url))]
+        this.wantItems = [...$(tradeObj).find('.rlg-trade__itemswants').children().map((_, e) => new RLGarageItem($, e, this.url))]
 
         // Assign a price to the items
         this.pricedTrade = priceItems(this.hasItems, this.wantItems);
@@ -29,7 +29,7 @@ class RLGarageTrade {
 
 // Represents a Trade Item on RL Garage
 class RLGarageItem {
-    constructor($, tradeItem) {
+    constructor($, tradeItem, tradeUrl) {
         // General item info
         this.imageUrl = SITE_BASE + $(tradeItem).find('.rlg-item__image').attr('src');
         this.name = $(tradeItem).find('.rlg-item__name').text().trim();
@@ -37,11 +37,13 @@ class RLGarageItem {
         // Specific info to RL Garage
         let itemParams = querystring.parse($(tradeItem).attr('href').slice(10));
         this.id = itemParams.filterItem;
-        this.paint = itemParams.filterPaint;
-        this.certification = itemParams.filterCertification;
+        this.paint = parseInt(itemParams.filterPaint) > 0 ? itemParams.filterPaint : 'N';
+        this.cert = parseInt(itemParams.filterCertification) > 0 ? itemParams.filterCertification : 'N';
         
         this.quantity = parseInt($(tradeItem).find('div.rlg-item__quantity').text().trim()) ? parseInt($(tradeItem).find('div.rlg-item__quantity').text().trim()) : 1;
         this.price = null;
+
+        this.tradeUrl = tradeUrl;
     }
 
     setItemPrice(price) {
