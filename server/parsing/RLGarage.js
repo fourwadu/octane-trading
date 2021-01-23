@@ -1,8 +1,8 @@
-const cheerio = require('cheerio');
-const axios = require('axios');
-const querystring = require('querystring');
+import cheerio from 'cheerio';
+import axios from 'axios';
+import querystring from 'querystring';
 
-const RLGarageTrade = require('./RLGarageTrade');
+import RLGarageTrade from './RLGarageTrade';
 
 const RL_GARAGE_URL = 'https://rocket-league.com/trading';
 
@@ -20,9 +20,11 @@ const SEARCH_TYPE = {
 }
 
 // Fetches the RL Garage and returns the HTML of the site based on parameters
-const getPage = async ({ platform=PLATFORMS.PC, search_type=SEARCH_TYPE.Any, item=0, minCredits=0, maxCredits=100000 } = {}) => {
+const getPage = async ({ platform=PLATFORMS.PC, search_type=SEARCH_TYPE.Any, item=0, itemPaint=0, itemCert=0, minCredits=0, maxCredits=100000 } = {}) => {
     const queryData = querystring.stringify({
         'filterItem': item,
+        'filterPaint': itemPaint,
+        'filterCertification': itemCert,
         'filterMinCredits': minCredits,
         'filterMaxCredits': maxCredits,
         'filterPlatform[]': platform,
@@ -46,4 +48,4 @@ const scrapeTrades = (pageHTML) => {
     return trades;
 }
 
-module.exports = { getPage, scrapeTrades, PLATFORMS, SEARCH_TYPE }
+export default { getPage, scrapeTrades, PLATFORMS, SEARCH_TYPE }
